@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: keycloak/keycloak:latest
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      DB_VENDOR: h2
+    entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
+    networks:
+      - app
+
+  mongo:
+    image: mongo:6.0
+    restart: always
+    env_file: ./.env
+    volumes:
+      - ./volumes/mongo:/data/db
+    networks:
+      - app
+    ports:
+      - "27019:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - app
+
+volumes:
+  mongo:
+
+networks:
+  app:
+    driver: bridge
