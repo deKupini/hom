@@ -9,6 +9,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       DB_VENDOR: h2
+      KC_LOG_LEVEL: DEBUG
     entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
     networks:
       - app
